@@ -1,0 +1,72 @@
+export const styles = [
+  {
+    id: "tech",
+    name: "柔和科技卡片风格",
+    description: "现代设计搭配柔和渐变和简洁字体",
+    colors: ["#f3e7ff", "#ffffff"],
+    typography: "Roboto, system-ui",
+  },
+  {
+    id: "business",
+    name: "现代商务风格",
+    description: "专业布局配合企业元素",
+    colors: ["#1a3c34", "#ffffff"],
+    typography: "Inter, system-ui",
+  },
+  {
+    id: "minimal",
+    name: "极简网格风格",
+    description: "使用网格系统的清爽布局",
+    colors: ["#f7f7f7", "#000000"],
+    typography: "Space Grotesk, system-ui",
+  },
+  {
+    id: "nature",
+    name: "奢华自然风格",
+    description: "优雅设计配合自然元素",
+    colors: ["#2c5530", "#f4e8d1"],
+    typography: "Playfair Display, serif",
+  },
+  {
+    id: "industrial",
+    name: "工业风格",
+    description: "大胆设计配合技术元素",
+    colors: ["#232323", "#ffd700"],
+    typography: "Space Mono, monospace",
+  },
+  {
+    id: "creative",
+    name: "创意艺术风格",
+    description: "富有表现力的艺术布局",
+    colors: ["#ff6b6b", "#4ecdc4"],
+    typography: "Abril Fatface, cursive",
+  },
+  {
+    id: "education",
+    name: "教育风格",
+    description: "清晰的学习内容布局",
+    colors: ["#2b6cb0", "#ebf8ff"],
+    typography: "Source Sans Pro, system-ui",
+  },
+  {
+    id: "fashion",
+    name: "时尚杂志风格",
+    description: "潮流设计风格内容",
+    colors: ["#000000", "#ffffff"],
+    typography: "Bodoni Moda, serif",
+  },
+  {
+    id: "food",
+    name: "美食风格",
+    description: "温暖诱人的美食主题设计",
+    colors: ["#fff5f5", "#e53e3e"],
+    typography: "Lora, serif",
+  },
+  {
+    id: "digital",
+    name: "数字潮流风格",
+    description: "面向科技内容的未来主义设计",
+    colors: ["#2d3748", "#63b3ed"],
+    typography: "JetBrains Mono, monospace",
+  }
+];

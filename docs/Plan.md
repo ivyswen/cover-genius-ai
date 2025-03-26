@@ -90,7 +90,7 @@
 **项目结构**
 
 ```
-cover-generator/
+cover-genius-ai/
 ├── app/
 │   ├── page.tsx              # 首页
 │   ├── history/
