@@ -69,18 +69,21 @@ export function generatePrompt(input: PromptInput): string {
 
   const stylePrompt = `
 ## 设计风格
-- **视觉设计**：${selectedStyle.design}
-- **文字排版**：${selectedStyle.typography}
-- **装饰元素**：${selectedStyle.visual}
-- **风格说明**：${selectedStyle.description}`;
+**视觉设计**: \n${selectedStyle.design}\n
+**文字排版**: \n${selectedStyle.typography}\n
+**装饰元素**: \n${selectedStyle.visual}\n`;
 
-  const contentPrompt = `
-## 内容要求
-- 标题：${input.title}
-- 内容：${input.content}
-- 账号：${input.account}
-${input.slogan ? `- 标语：${input.slogan}` : ""}
-${input.backgroundUrl ? `- 背景图片：${input.backgroundUrl}` : ""}`;
+  const contentPrompt = input.platform === "xiaohongshu" 
+    ? `
+## 用户输入内容
+- 封面文案：${input.content}
+- 账号名称：${input.account}
+${input.slogan ? `- 可选标语：${input.slogan}` : ""}
+${input.backgroundUrl ? `- 背景图片：${input.backgroundUrl}` : ""}`
+    : `
+## 用户输入内容
+- 公众号标题：${input.title}
+${input.backgroundUrl ? `- emoji图片：${input.backgroundUrl}` : ""}`;
 
   const technicalPrompt = `
 ## 技术输出要求
@@ -89,7 +92,6 @@ ${input.backgroundUrl ? `- 背景图片：${input.backgroundUrl}` : ""}`;
 - css字段包含所有CSS代码
 - 确保代码可以直接使用，不需要额外的依赖
 - CSS中使用相对单位（如rem、%）确保响应式
-- 添加适当的hover效果增加交互体验
 - 使用CSS变量方便主题定制
 - 代码需要简洁且有适当的注释`;
 

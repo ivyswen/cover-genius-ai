@@ -1,10 +1,11 @@
-import { Inter } from "next/font/google";
-import { Toaster } from "@/components/ui/sonner";
-import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
-import Link from "next/link";
+import type { Metadata } from "next";
+import { Toaster } from "sonner";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"] });
+export const metadata: Metadata = {
+  title: "Cover Genius AI",
+  description: "AI-powered social media cover generator",
+};
 
 export default function RootLayout({
   children,
@@ -12,13 +13,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="zh">
-      <body className={inter.className}>
-        <div className="border-b">
-
-        </div>
-        {children}
-        <Toaster />
+    <html lang="zh-CN">
+      <body className="min-h-screen bg-background font-sans antialiased">
+        <main className="container mx-auto py-8">
+          {children}
+        </main>
+        <Toaster richColors position="top-center" />
       </body>
     </html>
   );
