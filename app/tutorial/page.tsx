@@ -3,107 +3,81 @@ import { Card } from "@/components/ui/card";
 export default function TutorialPage() {
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">封面设计教程</h1>
-      
-      <div className="space-y-6">
-        <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">开始使用</h2>
-          <p className="text-muted-foreground mb-4">
-            学习如何使用我们的 AI 驱动的生成器创建精美的社交媒体封面。
-            本指南将帮助您了解关键组件和最佳实践。
-          </p>
-        </Card>
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-3xl font-bold mb-6">使用教程</h1>
+        <div className="space-y-6">
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">基本使用步骤</h2>
+            <ol className="list-decimal pl-6 space-y-4">
+              <li>
+                <strong>选择平台</strong>
+                <p className="text-gray-600 mt-1">
+                  选择你需要生成的封面类型：小红书或微信公众号。每个平台都有其特定的尺寸和样式要求。
+                </p>
+              </li>
+              <li>
+                <strong>输入内容</strong>
+                <p className="text-gray-600 mt-1">
+                  填写封面标题、文案内容、账号名称等信息。这些内容将作为生成封面的核心元素。
+                </p>
+              </li>
+              <li>
+                <strong>选择风格</strong>
+                <p className="text-gray-600 mt-1">
+                  从预设的风格中选择一个，每种风格都有其独特的设计特点和视觉效果。
+                </p>
+              </li>
+              <li>
+                <strong>生成预览</strong>
+                <p className="text-gray-600 mt-1">
+                  点击生成按钮，AI 将根据你的输入创建封面。你可以实时预览效果。
+                </p>
+              </li>
+              <li>
+                <strong>下载使用</strong>
+                <p className="text-gray-600 mt-1">
+                  对生成的效果满意后，可以直接下载图片或复制代码。
+                </p>
+              </li>
+            </ol>
+          </Card>
 
-        <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">平台指南</h2>
-          
-          <div className="mb-6">
-            <h3 className="text-xl font-semibold mb-2">小红书</h3>
-            <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-              <li>宽高比：3:4</li>
-              <li>文字清晰易读</li>
-              <li>使用吸引眼球的标题</li>
-              <li>包含账号名称以增强品牌认知</li>
-            </ul>
-          </div>
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">风格说明</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium">柔和科技卡片风</h3>
+                <p className="text-gray-600">现代简约的设计风格，适合科技、数码类内容。</p>
+              </div>
+              <div>
+                <h3 className="font-medium">现代商务资讯卡片风</h3>
+                <p className="text-gray-600">专业大气的设计风格，适合商业、财经类内容。</p>
+              </div>
+              <div>
+                <h3 className="font-medium">更多风格</h3>
+                <p className="text-gray-600">我们会持续增加更多风格选项，敬请期待！</p>
+              </div>
+            </div>
+          </Card>
 
-          <div>
-            <h3 className="text-xl font-semibold mb-2">微信公众号</h3>
-            <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-              <li>宽高比：3.35:1</li>
-              <li>专业整洁的设计</li>
-              <li>保持一致的品牌元素</li>
-              <li>清晰的文字层次结构</li>
-            </ul>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">设计风格</h2>
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="text-xl font-semibold mb-2">柔和科技卡片风格</h3>
-              <p className="text-muted-foreground">
-                现代、简洁的设计，搭配柔和渐变和极简字体。
-                适合科技相关内容和专业服务。
-              </p>
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">常见问题</h2>
+            <div className="space-y-4">
+              <div>
+                <h3 className="font-medium">为什么我的封面生成失败？</h3>
+                <p className="text-gray-600">
+                  请检查你的网络连接和 API Key 是否正确。如果问题持续，请刷新页面重试。
+                </p>
+              </div>
+              <div>
+                <h3 className="font-medium">如何获得最好的生成效果？</h3>
+                <p className="text-gray-600">
+                  建议输入简洁明了的标题和文案，并选择与内容主题相符的风格。
+                </p>
+              </div>
             </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-2">现代商务风格</h3>
-              <p className="text-muted-foreground">
-                专业的布局，配合强烈的字体和企业元素。
-                适合商业和营销内容。
-              </p>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-2">极简网格风格</h3>
-              <p className="text-muted-foreground">
-                使用网格系统的清爽布局，装饰元素极简。
-                适合教育和信息类内容。
-              </p>
-            </div>
-            <div>
-              <h3 className="text-xl font-semibold mb-2">奢华自然风格</h3>
-              <p className="text-muted-foreground">
-                优雅的设计，配合自然元素和精致字体。
-                适合生活方式和奢侈品内容。
-              </p>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <h2 className="text-2xl font-semibold mb-4">最佳实践</h2>
-          <ul className="space-y-4">
-            <li>
-              <strong>清晰的层次：</strong>
-              <p className="text-muted-foreground">
-                使用不同字体大小创建清晰的视觉层次。主标题应该最大，
-                其次是副标题和正文。
-              </p>
-            </li>
-            <li>
-              <strong>对比度：</strong>
-              <p className="text-muted-foreground">
-                确保文字与背景之间有良好的对比度，便于阅读。
-                使用互补色增加视觉趣味。
-              </p>
-            </li>
-            <li>
-              <strong>品牌化：</strong>
-              <p className="text-muted-foreground">
-                包含您的账号名称，并在所有封面中保持一致的品牌元素。
-              </p>
-            </li>
-            <li>
-              <strong>留白：</strong>
-              <p className="text-muted-foreground">
-                不要让设计过于拥挤。有效利用留白使您的内容更易读、
-                更具视觉吸引力。
-              </p>
-            </li>
-          </ul>
-        </Card>
+          </Card>
+        </div>
       </div>
     </div>
   );

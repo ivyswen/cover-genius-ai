@@ -60,10 +60,14 @@ export default function HistoryPage() {
   if (history.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-6">生成历史</h1>
-        <Card className="p-6">
-          <p className="text-muted-foreground text-center">暂无生成记录。生成一些封面后将在此处显示！</p>
-        </Card>
+        <div className="max-w-4xl mx-auto">
+          <h1 className="text-3xl font-bold mb-6">生成历史</h1>
+          <Card className="p-6">
+            <div className="text-center text-gray-500 py-8">
+              即将推出 - 这里将显示你生成的封面历史记录
+            </div>
+          </Card>
+        </div>
       </div>
     );
   }
