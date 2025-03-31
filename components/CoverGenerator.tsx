@@ -357,14 +357,39 @@ export default function CoverGenerator() {
                   <SelectTrigger>
                     <SelectValue placeholder="请选择风格" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[400px]">
                     {styles.map((style) => (
-                      <SelectItem key={style.id} value={style.id}>
-                        {style.name}
+                      <SelectItem key={style.id} value={style.id} className="py-2">
+                        <div className="flex flex-col gap-2">
+                          <div className="font-medium">{style.name}</div>
+                          {style.previewImage && (
+                            <div className="relative w-full aspect-[3/2] rounded-md overflow-hidden">
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img
+                                src={style.previewImage}
+                                alt={`${style.name}预览图`}
+                                className="object-cover w-full h-full"
+                              />
+                            </div>
+                          )}
+                          <div className="text-sm text-muted-foreground">
+                            {style.description}
+                          </div>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {selectedStyle && selectedStyle.previewImage && (
+                  <div className="mt-2 relative w-full aspect-[3/2] rounded-md overflow-hidden border">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={selectedStyle.previewImage}
+                      alt={`${selectedStyle.name}预览图`}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                )}
                 {selectedStyle && (
                   <p className="mt-2 text-sm text-muted-foreground">
                     {selectedStyle.description}
