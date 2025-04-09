@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { styles } from "@/lib/styles";
 import StylePreview from "./StylePreview";
+import { aiProviders } from "@/lib/aiProviders";
 
 interface FormData {
   title: string;
@@ -18,6 +19,8 @@ interface FormData {
   backgroundUrl: string;
   style: string;
   platform: "xiaohongshu" | "wechat";
+  providerId: string;
+  modelId: string;
   apiKey: string;
 }
 
@@ -159,10 +162,66 @@ export default function FormSection({ formData, setFormData, onSubmit, isGenerat
       </div>
 
       <div className="space-y-2">
+        <Label>AI 提供商 *</Label>
+        <Select
+          value={formData.providerId}
+          onValueChange={(value) => {
+            const provider = aiProviders.find(p => p.id === value);
+            if (provider) {
+              setFormData({
+                ...formData,
+                providerId: value,
+                modelId: provider.defaultModel
+              });
+            }
+          }}
+          required
+          disabled={isGenerating}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="请选择AI提供商" />
+          </SelectTrigger>
+          <SelectContent>
+            {aiProviders.map((provider) => (
+              <SelectItem key={provider.id} value={provider.id}>
+                <div className="font-medium">{provider.name}</div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          {aiProviders.find(p => p.id === formData.providerId)?.description}
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label>AI 模型 *</Label>
+        <Select
+          value={formData.modelId}
+          onValueChange={(value) => setFormData({ ...formData, modelId: value })}
+          required
+          disabled={isGenerating}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="请选择AI模型" />
+          </SelectTrigger>
+          <SelectContent>
+            {aiProviders
+              .find(p => p.id === formData.providerId)?.models
+              .map((model) => (
+                <SelectItem key={model.id} value={model.id}>
+                  <div className="font-medium">{model.name}</div>
+                </SelectItem>
+              ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="space-y-2">
         <div className="flex justify-between items-center">
           <Label htmlFor="apiKey">API 密钥 *</Label>
           <a
-            href="https://platform.deepseek.com/api_keys"
+            href={aiProviders.find(p => p.id === formData.providerId)?.apiKeyUrl || "#"}
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-blue-500 hover:text-blue-700 hover:underline"
@@ -185,7 +244,8 @@ export default function FormSection({ formData, setFormData, onSubmit, isGenerat
             type="button"
             variant="outline"
             onClick={() => {
-              localStorage.removeItem("openrouter_api_key");
+              const storageKey = `${formData.providerId}_api_key`;
+              localStorage.removeItem(storageKey);
               setFormData({ ...formData, apiKey: "" });
               toast.success("API 密钥已清除");
             }}

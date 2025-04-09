@@ -21,6 +21,8 @@ interface FormData {
   backgroundUrl: string;
   style: string;
   platform: "xiaohongshu" | "wechat";
+  providerId: string;
+  modelId: string;
   apiKey: string;
 }
 
@@ -33,6 +35,8 @@ export default function CoverGenerator() {
     backgroundUrl: "",
     style: "",
     platform: "xiaohongshu",
+    providerId: "deepseek",
+    modelId: "deepseek-chat",
     apiKey: "",
   });
 
@@ -47,18 +51,21 @@ export default function CoverGenerator() {
 
   // 在组件挂载时从 localStorage 读取 API 密钥
   useEffect(() => {
-    const savedApiKey = localStorage.getItem("openrouter_api_key");
+    // 根据当前选择的提供商读取对应的API密钥
+    const storageKey = `${formData.providerId}_api_key`;
+    const savedApiKey = localStorage.getItem(storageKey);
     if (savedApiKey) {
       setFormData(prev => ({ ...prev, apiKey: savedApiKey }));
     }
-  }, []);
+  }, [formData.providerId]);
 
   // 保存 API 密钥到 localStorage
   useEffect(() => {
     if (formData.apiKey) {
-      localStorage.setItem("openrouter_api_key", formData.apiKey);
+      const storageKey = `${formData.providerId}_api_key`;
+      localStorage.setItem(storageKey, formData.apiKey);
     }
-  }, [formData.apiKey]);
+  }, [formData.apiKey, formData.providerId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,8 +108,8 @@ export default function CoverGenerator() {
       const loadingToast = toast.loading("正在生成封面...");
       setIsGenerating(true);
 
-      const response = await generateCover(generatedPrompt, formData.apiKey);
-      console.log("API Response:", response);
+      const response = await generateCover(generatedPrompt, formData.apiKey, formData.providerId, formData.modelId);
+      // console.log("API Response:", response);
 
       try {
         const parsedResponse = typeof response === 'string' ? JSON.parse(response) : response;
