@@ -60,7 +60,8 @@ export function generatePrompt(input: PromptInput): string {
 **技术实现**
 - 使用纯HTML和CSS编写
 - 如果用户给了背景图片的链接需要结合背景图片排版
-- 严格实现响应式设计，确保在任何浏览器宽度下都保持比例
+- 严格实现响应式设计，确保在任何浏览器宽度下都保持16:10的整体比例
+- 在线 CDN 引用 Tailwind CSS 来优化比例和样式控制
 - 内部元素应相对于容器进行缩放，确保整体设计和文字排版比例一致
 - 使用Google Fonts或其他CDN加载适合的现代字体
 - 可引用在线图标资源（如Font Awesome）
@@ -71,7 +72,7 @@ export function generatePrompt(input: PromptInput): string {
 ## 设计风格
 **视觉设计**: \n${selectedStyle.design}\n
 **文字排版**: \n${selectedStyle.typography}\n
-**装饰元素**: \n${selectedStyle.visual}\n`;
+**装饰元素**: \n${selectedStyle.visual}`;
 
   const contentPrompt = input.platform === "xiaohongshu" 
     ? `
@@ -87,12 +88,10 @@ ${input.backgroundUrl ? `- emoji图片：${input.backgroundUrl}` : ""}`;
 
   const technicalPrompt = `
 ## 技术输出要求
-- 返回格式必须是JSON，包含两个字段：html 和 css
+- 返回格式必须是JSON，包含字段：html 
 - html字段包含所有HTML代码
-- css字段包含所有CSS代码
+- 最外层的div要使用id="cover"，class="cover-container"
 - 确保代码可以直接使用，不需要额外的依赖
-- CSS中使用相对单位（如rem、%）确保响应式
-- 使用CSS变量方便主题定制
 - 代码需要简洁且有适当的注释`;
 
   return `${rolePrompt}
@@ -101,7 +100,7 @@ ${basePrompt}
 
 ${stylePrompt}
 
-${contentPrompt}
+${technicalPrompt}
 
-${technicalPrompt}`;
+${contentPrompt}`;
 }

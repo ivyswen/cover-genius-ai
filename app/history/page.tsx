@@ -49,7 +49,7 @@ export default function HistoryPage() {
       link.download = `cover-${format(new Date(entry.timestamp), "yyyy-MM-dd-HH-mm-ss")}.png`;
       link.href = canvas.toDataURL();
       link.click();
-      
+
       toast.success("封面下载成功！");
     } catch (error) {
       console.error("Download error:", error);
@@ -94,9 +94,9 @@ export default function HistoryPage() {
                 </div>
               </div>
               <div>
-                <div id={`preview-${entry.timestamp}`} className="w-full">
+                <div id={`preview-${entry.timestamp}`} className="w-full bg-white rounded-md border overflow-hidden" style={{ maxHeight: '400px' }}>
                   <style dangerouslySetInnerHTML={{ __html: entry.preview.css }} />
-                  <div dangerouslySetInnerHTML={{ __html: entry.preview.html }} />
+                  <div dangerouslySetInnerHTML={{ __html: entry.preview.html }} className="p-2" />
                 </div>
               </div>
             </div>

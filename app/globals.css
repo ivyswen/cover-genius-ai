@@ -16,6 +16,54 @@
   }
 }
 
+/* Style preview image optimizations */
+.style-preview-container {
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f9f9f9;
+}
+
+.style-preview-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Fix for dropdown menu layout issues */
+.radix-select-content {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Ensure images don't break layout */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Prevent content overflow */
+.preview-content {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Responsive layout adjustments */
+@media (min-width: 1024px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container {
+    padding-left: 4rem;
+    padding-right: 4rem;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

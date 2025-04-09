@@ -3,7 +3,6 @@ import { toast } from 'sonner';
 
 interface GenerationResponse {
   html: string;
-  css: string;
 }
 
 export async function generateCover(prompt: string, apiKey: string): Promise<GenerationResponse> {
@@ -15,7 +14,7 @@ export async function generateCover(prompt: string, apiKey: string): Promise<Gen
         messages: [
           {
             role: 'system',
-            content: 'You are an expert web designer who creates beautiful HTML and CSS code for social media covers. You always respond with valid HTML and CSS code that can be directly used to create visually appealing designs.'
+            content: 'You are an expert web designer who creates beautiful HTML and CSS code for social media covers. You always respond with valid HTML code that can be directly used to create visually appealing designs.'
           },
           {
             role: 'user',
@@ -37,13 +36,12 @@ export async function generateCover(prompt: string, apiKey: string): Promise<Gen
     const result = response.data.choices[0].message.content;
     const parsed = JSON.parse(result);
 
-    if (!parsed.html || !parsed.css) {
+    if (!parsed.html ) {
       throw new Error('Invalid response format from AI');
     }
 
     return {
-      html: parsed.html,
-      css: parsed.css
+      html: parsed.html
     };
   } catch (error) {
     console.error('API Error:', error);
