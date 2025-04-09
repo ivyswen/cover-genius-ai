@@ -15,25 +15,21 @@ interface PreviewSectionProps {
   preview: PreviewData | null;
   onCopy: () => void;
   onPasteHtml: () => void;
-  onDownload: () => void;
   isCopying: boolean;
-  isDownloading: boolean;
 }
 
 export default function PreviewSection({
   preview,
   onCopy,
   onPasteHtml,
-  onDownload,
-  isCopying,
-  isDownloading
+  isCopying
 }: PreviewSectionProps) {
   const [showPreview, setShowPreview] = useState(true);
 
   return (
-    <Card className="p-5 h-full shadow-sm">
+    <Card className="p-5 h-full shadow-sm relative">
       {preview && (
-        <div className="flex justify-end mb-4">
+        <div className="absolute top-5 right-5 z-10">
           <div className="inline-flex rounded-lg bg-zinc-900 p-0.5 shadow-md">
             <button
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors mx-0.5 ${
@@ -96,9 +92,7 @@ export default function PreviewSection({
         <ActionButtons
           onCopy={onCopy}
           onPasteHtml={onPasteHtml}
-          onDownload={onDownload}
           isCopying={isCopying}
-          isDownloading={isDownloading}
           hasPreview={!!preview}
         />
       </div>

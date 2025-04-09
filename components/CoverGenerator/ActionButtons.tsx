@@ -5,18 +5,14 @@ import { Button } from "@/components/ui/button";
 interface ActionButtonsProps {
   onCopy: () => void;
   onPasteHtml: () => void;
-  onDownload: () => void;
   isCopying: boolean;
-  isDownloading: boolean;
   hasPreview?: boolean;
 }
 
 export default function ActionButtons({
   onCopy,
   onPasteHtml,
-  onDownload,
   isCopying,
-  isDownloading,
   hasPreview = false
 }: ActionButtonsProps) {
   return (
@@ -42,16 +38,7 @@ export default function ActionButtons({
           粘贴HTML
         </Button>
       </div>
-      <Button
-        onClick={onDownload}
-        className="w-full flex items-center justify-center gap-2"
-        disabled={isDownloading || !hasPreview}
-        aria-label={isDownloading ? "正在下载..." : "下载封面"}
-        size="lg"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-        {isDownloading ? "正在下载..." : "下载封面"}
-      </Button>
+
     </div>
   );
 }

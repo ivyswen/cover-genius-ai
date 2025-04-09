@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
 
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-4">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">AI 智能封面生成器</h1>
@@ -29,10 +29,6 @@ export default function Home() {
               <CoverGenerator />
             </div>
           </Card>
-
-          <div className="mt-8 text-center text-sm text-gray-500">
-            <p>© 2025 Cover Genius AI. 基于 MIT 许可证开源</p>
-          </div>
         </div>
       </main>
     </div>

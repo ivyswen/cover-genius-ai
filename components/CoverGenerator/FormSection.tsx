@@ -159,7 +159,17 @@ export default function FormSection({ formData, setFormData, onSubmit, isGenerat
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="apiKey">API 密钥 *</Label>
+        <div className="flex justify-between items-center">
+          <Label htmlFor="apiKey">API 密钥 *</Label>
+          <a
+            href="https://platform.deepseek.com/api_keys"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm text-blue-500 hover:text-blue-700 hover:underline"
+          >
+            获取API key
+          </a>
+        </div>
         <div className="flex gap-2">
           <Input
             id="apiKey"
