@@ -16,7 +16,7 @@ export default function Header() {
         </div>
         <div className="flex items-center space-x-4">
           <a
-            href="https://github.com/yourusername/cover-genius-ai"
+            href="https://github.com/ivyswen/cover-genius-ai"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-600 hover:text-gray-900"

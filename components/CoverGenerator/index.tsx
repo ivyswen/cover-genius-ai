@@ -192,7 +192,7 @@ export default function CoverGenerator() {
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-3xl font-bold">开始创作</h1>
           <a
-            href="https://github.com/yourusername/cover-genius-ai/blob/main/docs/tutorial.md"
+            href="https://github.com/ivyswen/cover-genius-ai/blob/main/docs/tutorial.md"
             target="_blank"
             rel="noopener noreferrer"
             className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
