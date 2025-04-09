@@ -16,13 +16,15 @@ interface PreviewSectionProps {
   onCopy: () => void;
   onPasteHtml: () => void;
   isCopying: boolean;
+  platform: "xiaohongshu" | "wechat";
 }
 
 export default function PreviewSection({
   preview,
   onCopy,
   onPasteHtml,
-  isCopying
+  isCopying,
+  platform
 }: PreviewSectionProps) {
   const [showPreview, setShowPreview] = useState(true);
 
@@ -65,7 +67,7 @@ export default function PreviewSection({
           }}
         >
           {showPreview ? (
-            <SafePreview html={preview.html} />
+            <SafePreview html={preview.html} platform={platform} />
           ) : (
             <SourceCodeView html={preview.html} />
           )}

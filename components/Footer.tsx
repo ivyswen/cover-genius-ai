@@ -10,7 +10,7 @@ export default function Footer() {
               © {new Date().getFullYear()} Cover Genius AI. 保留所有权利。
             </p>
             <p className="text-sm text-gray-600 mt-1">
-              感谢 <a href="https://x.com/op7418" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">歸藏老师</a> 的指导与支持。
+              感谢 <a href="https://x.com/op7418" target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">歸藏</a> 老师
             </p>
           </div>
           <div className="flex space-x-6">

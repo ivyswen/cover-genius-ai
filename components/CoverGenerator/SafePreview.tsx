@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button";
 interface SafePreviewProps {
   html: string;
   onClose?: () => void;
+  platform?: "xiaohongshu" | "wechat";
 }
 
-export default function SafePreview({ html, onClose }: SafePreviewProps) {
+export default function SafePreview({ html, onClose, platform = "xiaohongshu" }: SafePreviewProps) {
   const [scale, setScale] = useState(1);
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -24,6 +25,8 @@ export default function SafePreview({ html, onClose }: SafePreviewProps) {
         const htmlContent = iframeDocument.documentElement.innerHTML;
 
         // 在</body>标签前添加按钮和脚本
+        const platformName = platform === "xiaohongshu" ? "小红书" : "微信公众号";
+
         const newContent = htmlContent.replace('</body>', `
     <button class="save-btn" onclick="saveAsImage()">保存封面</button>
 
@@ -32,13 +35,20 @@ export default function SafePreview({ html, onClose }: SafePreviewProps) {
             const container = document.querySelector('.cover-container');
             html2canvas(container).then(canvas => {
                 const link = document.createElement('a');
-                link.download = '单文件笔记法封面.png';
+                const now = new Date();
+                const dateStr = now.getFullYear() +
+                               (now.getMonth() + 1).toString().padStart(2, '0') +
+                               now.getDate().toString().padStart(2, '0') +
+                               '_' +
+                               now.getHours().toString().padStart(2, '0') +
+                               now.getMinutes().toString().padStart(2, '0');
+                link.download = '${platformName}封面_' + dateStr + '.png';
                 link.href = canvas.toDataURL();
                 link.click();
             });
         }
     </script>
-</body>`);
+</body>`.replace('${platformName}', platformName));
 
         // 在</head>标签前添加html2canvas脚本和save-btn的CSS样式
         const finalContent = newContent.replace('</head>', `

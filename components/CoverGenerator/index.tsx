@@ -223,6 +223,7 @@ export default function CoverGenerator() {
               onCopy={copySourceCode}
               onPasteHtml={() => setShowPasteDialog(true)}
               isCopying={isCopying}
+              platform={formData.platform}
             />
           </div>
         </div>
