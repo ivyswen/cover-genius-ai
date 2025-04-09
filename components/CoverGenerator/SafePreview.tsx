@@ -33,7 +33,33 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
     <script>
         function saveAsImage() {
             const container = document.querySelector('.cover-container');
-            html2canvas(container).then(canvas => {
+            if (!container) {
+                alert('找不到封面元素，请确保封面已正确加载');
+                return;
+            }
+
+            // 在截图前先记录原始背景色
+            const originalBgColor = document.body.style.backgroundColor;
+            // 设置纯白背景以避免色块问题
+            document.body.style.backgroundColor = 'white';
+
+            // 使用更多高级配置
+            html2canvas(container, {
+                scale: 2, // 更高的缩放比例提高清晰度
+                useCORS: true, // 允许加载跨域图片
+                allowTaint: true, // 允许加载跨域图片（可能会污染画布）
+                backgroundColor: '#ffffff', // 设置白色背景
+                logging: false, // 关闭日志以提高性能
+                removeContainer: false, // 不移除临时创建的容器
+                imageTimeout: 0, // 禁用图片加载超时
+                ignoreElements: (element) => {
+                    // 忽略保存按钮自身
+                    return element.classList.contains('save-btn');
+                }
+            }).then(canvas => {
+                // 恢复原始背景色
+                document.body.style.backgroundColor = originalBgColor;
+
                 const link = document.createElement('a');
                 const now = new Date();
                 const dateStr = now.getFullYear() +
@@ -43,8 +69,13 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
                                now.getHours().toString().padStart(2, '0') +
                                now.getMinutes().toString().padStart(2, '0');
                 link.download = '${platformName}封面_' + dateStr + '.png';
-                link.href = canvas.toDataURL();
+                link.href = canvas.toDataURL('image/png');
                 link.click();
+            }).catch(error => {
+                // 恢复原始背景色
+                document.body.style.backgroundColor = originalBgColor;
+                console.error('截图错误:', error);
+                alert('截图失败，请刷新页面后重试');
             });
         }
     </script>
