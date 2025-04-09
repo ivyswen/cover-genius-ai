@@ -30,7 +30,7 @@ export async function generateCover(
           messages: [
             {
               role: 'system',
-              content: 'You are an expert web designer who creates beautiful HTML and CSS code for social media covers. You always respond with valid HTML code that can be directly used to create visually appealing designs.'
+              content: 'You always respond with valid HTML code that can be directly used to create visually appealing designs.'
             },
             {
               role: 'user',

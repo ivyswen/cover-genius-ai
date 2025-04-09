@@ -70,9 +70,9 @@ export function generatePrompt(input: PromptInput): string {
 
   const stylePrompt = `
 ## 设计风格
-**视觉设计**: \n${selectedStyle.design}\n
-**文字排版**: \n${selectedStyle.typography}\n
-**装饰元素**: \n${selectedStyle.visual}`;
+**视觉设计** \n${selectedStyle.design}\n
+**文字排版** \n${selectedStyle.typography}\n
+**装饰元素** \n${selectedStyle.visual}`;
 
   const contentPrompt = input.platform === "xiaohongshu" 
     ? `
