@@ -23,14 +23,6 @@ export default function Footer() {
               GitHub
             </a>
             <a
-              href="https://platform.deepseek.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-sm text-gray-600 hover:text-gray-900"
-            >
-              DeepSeek
-            </a>
-            <a
               href="#"
               onClick={(e) => {
                 e.preventDefault();

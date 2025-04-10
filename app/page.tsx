@@ -12,7 +12,7 @@ export default function Home() {
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">AI 智能封面生成器</h1>
             <p className="text-lg text-gray-600">
-              基于 DeepSeek V3 模型，为你的内容生成精美的社交媒体封面
+              基于LLM，为你的内容生成精美的社交媒体封面
             </p>
           </div>
 

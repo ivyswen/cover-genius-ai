@@ -20,9 +20,28 @@ export async function generateCover(
     const model = modelId || provider.defaultModel;
     let requestData;
     let requestConfig;
+    let apiEndpoint = provider.apiEndpoint;
 
     // 根据不同的提供商构建不同的请求数据
     switch (providerId) {
+      case 'openrouter':
+        requestData = {
+          model: model,
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert web designer who creates beautiful HTML and CSS code for social media covers. You always respond with valid HTML code that can be directly used to create visually appealing designs.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 4000
+        };
+        break;
+
       case 'deepseek':
         requestData = {
           model: model,
@@ -58,9 +77,10 @@ export async function generateCover(
         requestData = {
           contents: [
             {
+              role: "user",
               parts: [
                 {
-                  text: `You are an expert web designer who creates beautiful HTML and CSS code for social media covers. Please create HTML code based on this prompt: ${prompt}\n\nRespond with valid HTML code that can be directly used to create visually appealing designs. Return the HTML code in a code block or as a JSON object with an 'html' field.`
+                  text: `You are an expert web designer who creates beautiful HTML and CSS code for social media covers. Please create HTML code based on this prompt: ${prompt}\n\nRespond with valid HTML code that can be directly used to create visually appealing designs. Don't include any Markdown formatting in your response.`
                 }
               ]
             }
@@ -77,6 +97,8 @@ export async function generateCover(
             key: apiKey
           }
         };
+        // 更新端点URL，添加模型名称
+        apiEndpoint = `${provider.apiEndpoint}/${model}:generateContent`;
         break;
 
       case 'openai':
@@ -109,7 +131,7 @@ export async function generateCover(
     }
 
     const response = await axios.post(
-      provider.apiEndpoint,
+      apiEndpoint,
       requestData,
       requestConfig
     );
@@ -117,7 +139,6 @@ export async function generateCover(
     // 使用提供商特定的响应解析方法
     return provider.parseResponse(response);
   } catch (error) {
-    console.error('API Error:', error);
     throw new Error(`Failed to generate cover: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
