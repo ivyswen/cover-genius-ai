@@ -71,7 +71,7 @@ export default function FormSection({ formData, setFormData, onSubmit, isGenerat
             setFormData({
               ...formData,
               providerId: savedProviderId,
-              modelId: modelToUse
+              modelId: modelToUse || provider.defaultModel
             });
           }
         }
