@@ -20,11 +20,21 @@ export default function Home() {
             <div className="space-y-6">
               <div className="flex items-center justify-between pb-4 border-b">
                 <h2 className="text-2xl font-semibold text-gray-800">开始创作</h2>
-                <Button variant="outline" asChild>
-                  <Link href="/tutorial">
-                    查看教程
-                  </Link>
-                </Button>
+                <div className="flex items-center space-x-3">
+                  <a
+                    href="https://github.com/ivyswen/cover-genius-ai/blob/main/docs/tutorial.md"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                  >
+                    在线教程
+                  </a>
+                  <Button variant="outline" asChild>
+                    <Link href="/tutorial">
+                      使用指南
+                    </Link>
+                  </Button>
+                </div>
               </div>
               <CoverGenerator />
             </div>

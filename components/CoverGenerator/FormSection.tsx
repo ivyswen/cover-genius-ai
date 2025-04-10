@@ -46,7 +46,8 @@ export default function FormSection({ formData, setFormData, onSubmit, isGenerat
   const selectedStyle = styles.find(s => s.id === formData.style);
 
   return (
-    <form onSubmit={onSubmit} className="space-y-5">
+    <form onSubmit={onSubmit} className="space-y-5 h-full flex flex-col">
+      <div className="flex-grow overflow-y-auto pr-2 space-y-5">
       <div className="space-y-2">
         <Label>平台 *</Label>
         <RadioGroup
@@ -279,16 +280,19 @@ export default function FormSection({ formData, setFormData, onSubmit, isGenerat
           API 密钥已保存在浏览器中，刷新页面后会自动填充
         </p>
       </div>
+      </div>
 
-      <Button
-        type="submit"
-        className="w-full mt-2"
-        disabled={isGenerating}
-        aria-label={isGenerating ? "正在生成封面..." : "生成封面"}
-        size="lg"
-      >
-        {isGenerating ? "正在生成..." : "生成封面"}
-      </Button>
+      <div className="mt-auto pt-4">
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isGenerating}
+          aria-label={isGenerating ? "正在生成封面..." : "生成封面"}
+          size="lg"
+        >
+          {isGenerating ? "正在生成..." : "生成封面"}
+        </Button>
+      </div>
     </form>
   );
 }

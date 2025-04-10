@@ -395,7 +395,8 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
         ref={containerRef}
         className="w-full bg-white border rounded-md shadow-sm overflow-hidden"
         style={{
-          height: '600px',
+          height: '100%',
+          minHeight: '500px',
           position: 'relative',
           backgroundColor: 'white',
           display: 'flex',

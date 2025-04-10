@@ -29,7 +29,7 @@ export default function PreviewSection({
   const [showPreview, setShowPreview] = useState(true);
 
   return (
-    <Card className="p-5 h-full shadow-sm relative">
+    <Card className="p-5 h-full shadow-sm relative flex flex-col">
       {preview && (
         <div className="absolute top-5 right-5 z-10">
           <div className="inline-flex rounded-lg bg-zinc-900 p-0.5 shadow-md">
@@ -57,42 +57,38 @@ export default function PreviewSection({
         </div>
       )}
 
-      {preview ? (
-        <div
-          className="w-full bg-white relative border rounded-md shadow-sm"
-          style={{
-            height: '650px',
-            maxHeight: '800px',
-            overflow: 'hidden'
-          }}
-        >
-          {typeof window !== 'undefined' && (
-            showPreview ? (
-              <SafePreview html={preview.html} platform={platform} />
-            ) : (
-              <SourceCodeView html={preview.html} />
-            )
-          )}
-        </div>
-      ) : (
-        <div
-          className="w-full bg-white relative border rounded-md shadow-sm"
-          style={{
-            height: '650px',
-            maxHeight: '800px',
-            overflow: 'auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
-        >
-          <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
-            预览将在此处显示
+      <div className="flex-grow overflow-hidden mb-4">
+        {preview ? (
+          <div
+            className="w-full h-full bg-white relative border rounded-md shadow-sm"
+            style={{
+              minHeight: '500px',
+              overflow: 'hidden'
+            }}
+          >
+            {typeof window !== 'undefined' && (
+              showPreview ? (
+                <SafePreview html={preview.html} platform={platform} />
+              ) : (
+                <SourceCodeView html={preview.html} />
+              )
+            )}
           </div>
-        </div>
-      )}
+        ) : (
+          <div
+            className="w-full h-full bg-white relative border rounded-md shadow-sm flex items-center justify-center"
+            style={{
+              minHeight: '500px'
+            }}
+          >
+            <div className="text-muted-foreground">
+              预览将在此处显示
+            </div>
+          </div>
+        )}
+      </div>
 
-      <div className="mt-4">
+      <div className="mt-auto">
         <ActionButtons
           onCopy={onCopy}
           onPasteHtml={onPasteHtml}

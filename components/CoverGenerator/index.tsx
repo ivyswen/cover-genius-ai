@@ -259,20 +259,9 @@ export default function CoverGenerator() {
         onApply={handlePasteHtml}
       />
 
-      <div className="space-y-6">
-        <div className="flex justify-between items-center mb-4">
-          <h1 className="text-3xl font-bold">开始创作</h1>
-          <a
-            href="https://github.com/ivyswen/cover-genius-ai/blob/main/docs/tutorial.md"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
-          >
-            查看教程
-          </a>
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-10 gap-6">
-          <div className="space-y-4 lg:col-span-4">
+      <div className="space-y-6 h-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[700px]">
+          <div className="h-full">
             <FormSection
               formData={formData}
               setFormData={setFormData}
@@ -283,7 +272,7 @@ export default function CoverGenerator() {
             />
           </div>
 
-          <div className="lg:col-span-6">
+          <div className="h-full">
             <PreviewSection
               preview={preview}
               onCopy={copySourceCode}
