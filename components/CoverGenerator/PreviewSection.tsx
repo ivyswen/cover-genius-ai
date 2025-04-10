@@ -26,6 +26,22 @@ export default function PreviewSection({
   isCopying,
   platform
 }: PreviewSectionProps) {
+  // 在新窗口打开预览
+  const openInNewWindow = () => {
+    if (!preview) return;
+
+    // 创建一个新窗口
+    const newWindow = window.open('', '_blank');
+    if (!newWindow) {
+      alert('无法打开新窗口，请检查您的浏览器是否阻止了弹出窗口');
+      return;
+    }
+
+    // 写入HTML内容
+    // @ts-ignore - document.write 在新窗口中使用是可以接受的
+    newWindow.document.write(preview.html);
+    newWindow.document.close();
+  };
   const [showPreview, setShowPreview] = useState(true);
 
   return (
@@ -92,6 +108,7 @@ export default function PreviewSection({
         <ActionButtons
           onCopy={onCopy}
           onPasteHtml={onPasteHtml}
+          onOpenInNewWindow={openInNewWindow}
           isCopying={isCopying}
           hasPreview={!!preview}
         />

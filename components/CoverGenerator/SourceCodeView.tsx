@@ -14,16 +14,17 @@ export default function SourceCodeView({ html }: SourceCodeViewProps) {
   }
 
   return (
-    <div className="w-full h-full">
-      <div className="relative h-full">
+    <div className="w-full h-full overflow-hidden">
+      <div className="relative h-full p-2">
         <SyntaxHighlighter
           language="html"
           style={vscDarkPlus}
           customStyle={{
             margin: 0,
             borderRadius: '0.5rem',
-            height: '100%',
-            minHeight: '500px',
+            height: 'auto',
+            maxHeight: '900px',
+            minHeight: '400px',
             overflow: 'auto',
             backgroundColor: '#1E1E1E'
           }}
