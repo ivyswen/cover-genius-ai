@@ -24,6 +24,24 @@ export async function generateCover(
 
     // 根据不同的提供商构建不同的请求数据
     switch (providerId) {
+      case 'siliconflow':
+        requestData = {
+          model: model,
+          messages: [
+            {
+              role: 'system',
+              content: 'You always respond with valid HTML code that can be directly used to create visually appealing designs.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.7,
+          max_tokens: 4000
+        };
+        break;
+
       case 'openrouter':
         requestData = {
           model: model,
@@ -139,7 +157,29 @@ export async function generateCover(
     // 使用提供商特定的响应解析方法
     return provider.parseResponse(response);
   } catch (error) {
-    throw new Error(`Failed to generate cover: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    // 提取更详细的错误信息
+    if (axios.isAxiosError(error)) {
+      const statusCode = error.response?.status;
+      const statusText = error.response?.statusText;
+      const errorData = error.response?.data;
+
+      // 根据状态码提供更具体的错误信息
+      if (statusCode === 401) {
+        throw new Error(`认证失败: API密钥无效或已过期 (${statusCode} ${statusText})`);
+      } else if (statusCode === 403) {
+        throw new Error(`授权错误: 无权访问此API (${statusCode} ${statusText})`);
+      } else if (statusCode === 429) {
+        throw new Error(`请求过多: 超出了API限制 (${statusCode} ${statusText})`);
+      } else if (statusCode && statusCode >= 500) {
+        throw new Error(`服务器错误: 请稍后重试 (${statusCode} ${statusText})`);
+      } else {
+        // 尝试从响应中提取错误信息
+        const errorMessage = errorData?.error?.message || errorData?.message || error.message;
+        throw new Error(`请求失败: ${errorMessage} (${statusCode || 'Unknown'} ${statusText || ''})`);
+      }
+    } else {
+      throw new Error(`生成封面失败: ${error instanceof Error ? error.message : '未知错误'}`);
+    }
   }
 }
 

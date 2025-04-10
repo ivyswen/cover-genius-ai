@@ -63,18 +63,17 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
 
       // 获取容器尺寸
       const containerWidth = containerRef.current.clientWidth - 40; // 减去内边距
-      const containerHeight = 600; // 预期的容器高度
+      const containerHeight = 800; // 预期的容器高度
 
-      // 计算基于宽度和高度的缩放比例，选择较小的那个
+      // 计算基于宽度的缩放比例
+      // 对于高度，我们不再缩放，而是允许内容自然流动
       let newScale = 1;
       if (contentWidth > containerWidth) {
         newScale = containerWidth / contentWidth;
       }
 
-      if (contentHeight > containerHeight) {
-        const heightScale = containerHeight / contentHeight;
-        newScale = Math.min(newScale, heightScale);
-      }
+      // 高度不再限制缩放，而是允许内容自然流动
+      // 这样可以显示完整的内容
 
       // 限制缩放范围在0.3到1之间
       const finalScale = Math.min(1, Math.max(0.3, newScale));
@@ -84,16 +83,18 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
       const scaleStyle = `
         .cover-container, body > * {
           transform: scale(${finalScale});
-          transform-origin: center center;
+          transform-origin: top center;
           margin: 0 auto;
+          margin-bottom: 20px;
         }
         body {
           display: flex;
-          justify-content: center;
+          flex-direction: column;
+          justify-content: flex-start;
           align-items: center;
           min-height: 100vh;
-          padding: 0;
-          overflow: hidden;
+          padding: 20px 0;
+          overflow: auto;
           background-color: white;
         }
       `;
@@ -311,16 +312,18 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
                 styleElement.textContent = `
                   .cover-container, body > * {
                     transform: scale(${newScale});
-                    transform-origin: center center;
+                    transform-origin: top center;
                     margin: 0 auto;
+                    margin-bottom: 20px;
                   }
                   body {
                     display: flex;
-                    justify-content: center;
+                    flex-direction: column;
+                    justify-content: flex-start;
                     align-items: center;
                     min-height: 100vh;
-                    padding: 0;
-                    overflow: hidden;
+                    padding: 20px 0;
+                    overflow: auto;
                     background-color: white;
                   }
                 `;
@@ -341,16 +344,18 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
                 styleElement.textContent = `
                   .cover-container, body > * {
                     transform: scale(${newScale});
-                    transform-origin: center center;
+                    transform-origin: top center;
                     margin: 0 auto;
+                    margin-bottom: 20px;
                   }
                   body {
                     display: flex;
-                    justify-content: center;
+                    flex-direction: column;
+                    justify-content: flex-start;
                     align-items: center;
                     min-height: 100vh;
-                    padding: 0;
-                    overflow: hidden;
+                    padding: 20px 0;
+                    overflow: auto;
                     background-color: white;
                   }
                 `;
@@ -370,16 +375,18 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
                 styleElement.textContent = `
                   .cover-container, body > * {
                     transform: scale(1);
-                    transform-origin: center center;
+                    transform-origin: top center;
                     margin: 0 auto;
+                    margin-bottom: 20px;
                   }
                   body {
                     display: flex;
-                    justify-content: center;
+                    flex-direction: column;
+                    justify-content: flex-start;
                     align-items: center;
                     min-height: 100vh;
-                    padding: 0;
-                    overflow: hidden;
+                    padding: 20px 0;
+                    overflow: auto;
                     background-color: white;
                   }
                 `;
@@ -393,15 +400,17 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
 
       <div
         ref={containerRef}
-        className="w-full bg-white border rounded-md shadow-sm overflow-hidden"
+        className="w-full bg-white border rounded-md shadow-sm overflow-auto"
         style={{
-          height: '100%',
-          minHeight: '500px',
+          height: 'auto',
+          minHeight: '700px',
           position: 'relative',
           backgroundColor: 'white',
           display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center'
+          flexDirection: 'column',
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+          padding: '20px 0'
         }}
       >
         {typeof window !== 'undefined' && (
@@ -410,6 +419,7 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
             srcDoc={html}
             title="Preview"
             className="w-full h-full border-none"
+            style={{ minHeight: '700px', height: 'auto' }}
             sandbox="allow-scripts allow-same-origin allow-downloads allow-popups"
             onLoad={handleIframeLoad}
           />

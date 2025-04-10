@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -37,6 +37,64 @@ interface FormSectionProps {
 export default function FormSection({ formData, setFormData, onSubmit, isGenerating, onProviderChange, clientLoaded = false }: FormSectionProps) {
   // 使用一个强制刷新机制，确保组件正确显示当前选择的值
   const [key, setKey] = useState(0);
+
+  // 保存用户选择的提供商和模型到本地存储
+  const saveUserPreferences = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      // 保存提供商ID
+      localStorage.setItem('user_provider_id', formData.providerId);
+      // 保存模型ID
+      localStorage.setItem('user_model_id', formData.modelId);
+    }
+  }, [formData.providerId, formData.modelId]);
+
+  // 从本地存储加载用户选择的提供商和模型
+  useEffect(() => {
+    if (typeof window !== 'undefined' && clientLoaded) {
+      const savedProviderId = localStorage.getItem('user_provider_id');
+      const savedModelId = localStorage.getItem('user_model_id');
+
+      // 如果有保存的提供商ID，并且与当前不同
+      if (savedProviderId && savedProviderId !== formData.providerId) {
+        // 检查提供商是否存在
+        const provider = aiProviders.find(p => p.id === savedProviderId);
+        if (provider) {
+          // 如果有onProviderChange函数，使用它来更新提供商
+          if (onProviderChange) {
+            onProviderChange(savedProviderId);
+          } else {
+            // 否则直接更新formData
+            // 如果有保存的模型ID，并且该模型属于这个提供商，使用它
+            const modelExists = provider.models.some(m => m.id === savedModelId);
+            const modelToUse = modelExists ? savedModelId : provider.defaultModel;
+
+            setFormData({
+              ...formData,
+              providerId: savedProviderId,
+              modelId: modelToUse
+            });
+          }
+        }
+      }
+      // 如果提供商ID相同，但模型ID不同，并且该模型属于当前提供商
+      else if (savedModelId && savedModelId !== formData.modelId) {
+        const provider = aiProviders.find(p => p.id === formData.providerId);
+        if (provider && provider.models.some(m => m.id === savedModelId)) {
+          setFormData({
+            ...formData,
+            modelId: savedModelId
+          });
+        }
+      }
+    }
+  }, [clientLoaded]); // 只在客户端加载完成时执行一次
+
+  // 当提供商或模型变化时，保存到本地存储
+  useEffect(() => {
+    if (clientLoaded) {
+      saveUserPreferences();
+    }
+  }, [formData.providerId, formData.modelId, clientLoaded, saveUserPreferences]);
 
   // 当 formData.providerId 变化时，增加 key 值，强制组件重新渲染
   useEffect(() => {
@@ -289,9 +347,25 @@ export default function FormSection({ formData, setFormData, onSubmit, isGenerat
           disabled={isGenerating}
           aria-label={isGenerating ? "正在生成封面..." : "生成封面"}
           size="lg"
+          variant={isGenerating ? "outline" : "default"}
         >
-          {isGenerating ? "正在生成..." : "生成封面"}
+          {isGenerating ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-current" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              正在生成...
+            </>
+          ) : (
+            "生成封面"
+          )}
         </Button>
+        {isGenerating && (
+          <p className="mt-2 text-xs text-center text-muted-foreground">
+            生成封面需要一点时间，请耐心等待...
+          </p>
+        )}
       </div>
     </form>
   );

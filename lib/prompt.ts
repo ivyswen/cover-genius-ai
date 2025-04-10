@@ -90,7 +90,7 @@ ${input.backgroundUrl ? `- emoji图片：${input.backgroundUrl}` : ""}`;
 ## 技术输出要求
 - 返回格式必须是JSON，包含字段：html 
 - html字段包含所有HTML代码
-- 最外层的div要使用id="cover"，class="cover-container"
+- 最外层的div要使用class="cover-container"
 - 确保代码可以直接使用，不需要额外的依赖
 - 代码需要简洁且有适当的注释`;
 

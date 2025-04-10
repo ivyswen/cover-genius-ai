@@ -30,8 +30,8 @@ export default function PreviewSection({
 
   return (
     <Card className="p-5 h-full shadow-sm relative flex flex-col">
-      {preview && (
-        <div className="absolute top-5 right-5 z-10">
+      <div className="flex justify-end mb-4">
+        {preview && (
           <div className="inline-flex rounded-lg bg-zinc-900 p-0.5 shadow-md">
             <button
               className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors mx-0.5 ${
@@ -54,15 +54,15 @@ export default function PreviewSection({
               预览
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="flex-grow overflow-hidden mb-4">
         {preview ? (
           <div
             className="w-full h-full bg-white relative border rounded-md shadow-sm"
             style={{
-              minHeight: '500px',
+              minHeight: '700px',
               overflow: 'hidden'
             }}
           >
@@ -78,7 +78,7 @@ export default function PreviewSection({
           <div
             className="w-full h-full bg-white relative border rounded-md shadow-sm flex items-center justify-center"
             style={{
-              minHeight: '500px'
+              minHeight: '700px'
             }}
           >
             <div className="text-muted-foreground">

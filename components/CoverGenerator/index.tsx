@@ -34,6 +34,7 @@ export default function CoverGenerator() {
   // 使用函数初始化状态，确保只运行一次
   const [formData, setFormData] = useState<FormData>(() => {
     // 默认值 - 始终使用相同的默认值进行服务器和客户端渲染
+    // 注意：在这里不读取localStorage，因为这会在服务器端渲染时执行
     const initialProviderId = "deepseek";
     const initialModelId = "deepseek-chat";
     const savedApiKey = "";
@@ -55,22 +56,30 @@ export default function CoverGenerator() {
   // 在客户端加载完成后加载本地存储的数据
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      // 尝试从 localStorage 读取上次使用的提供商
-      const savedProviderId = localStorage.getItem("last_provider_id");
+      // 尝试从 localStorage 读取用户选择的提供商
+      const savedProviderId = localStorage.getItem("user_provider_id") || localStorage.getItem("last_provider_id");
+      // 尝试从 localStorage 读取用户选择的模型
+      const savedModelId = localStorage.getItem("user_model_id");
 
       if (savedProviderId) {
         const provider = aiProviders.find(p => p.id === savedProviderId);
         if (provider) {
-          console.log("Client-side: Using saved provider:", savedProviderId);
-
           // 尝试读取对应的 API 密钥
           const apiKeyStorageKey = `${savedProviderId}_api_key`;
           const savedApiKey = localStorage.getItem(apiKeyStorageKey) || "";
 
+          // 确定要使用的模型ID
+          let modelToUse = provider.defaultModel;
+
+          // 如果有保存的模型ID，并且该模型属于这个提供商，则使用它
+          if (savedModelId && provider.models.some(m => m.id === savedModelId)) {
+            modelToUse = savedModelId;
+          }
+
           setFormData(prevData => ({
             ...prevData,
             providerId: savedProviderId,
-            modelId: provider.defaultModel,
+            modelId: modelToUse,
             apiKey: savedApiKey
           }));
         }
@@ -78,7 +87,6 @@ export default function CoverGenerator() {
 
       setClientLoaded(true);
     }
-
   }, []);
 
 
@@ -112,8 +120,12 @@ export default function CoverGenerator() {
       const storageKey = `${newProviderId}_api_key`;
       savedApiKey = localStorage.getItem(storageKey) || "";
 
-      // 保存到 localStorage
+      // 保存到 localStorage（同时保存到新旧两个键）
       localStorage.setItem("last_provider_id", newProviderId);
+      localStorage.setItem("user_provider_id", newProviderId);
+
+      // 保存默认模型
+      localStorage.setItem("user_model_id", provider.defaultModel);
     }
 
     // 更新状态
@@ -133,6 +145,14 @@ export default function CoverGenerator() {
       localStorage.setItem(storageKey, formData.apiKey);
     }
   }, [formData.apiKey, formData.providerId]);
+
+  // 当模型变化时，保存到本地存储
+  useEffect(() => {
+    if (typeof window !== 'undefined' && clientLoaded) {
+      // 保存当前选择的模型
+      localStorage.setItem("user_model_id", formData.modelId);
+    }
+  }, [formData.modelId, clientLoaded]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -171,10 +191,10 @@ export default function CoverGenerator() {
     setPreview(null);
     setIsGenerating(true);
 
-    try {
-      const loadingToast = toast.loading("正在生成封面...");
-      setIsGenerating(true);
+    // 创建一个加载提示
+    const loadingToast = toast.loading("正在生成封面...");
 
+    try {
       // 在调用 API 前保存当前的提供商和模型
       const currentProviderId = formData.providerId;
       const currentModelId = formData.modelId;
@@ -207,12 +227,19 @@ export default function CoverGenerator() {
         console.error("Raw response:", response);
         toast.dismiss(loadingToast);
         toast.error(`解析响应失败: ${parseError instanceof Error ? parseError.message : '未知错误'}`);
-        throw parseError;
+        // 不再抛出错误，而是在这里处理它
+        setIsGenerating(false);
       }
     } catch (error: unknown) {
       console.error("Generation error:", error);
+      // 确保关闭加载提示
+      toast.dismiss(loadingToast);
+      // 显示错误消息
       toast.error(`生成失败: ${error instanceof Error ? error.message : '未知错误'}`);
+      // 确保重置生成状态
+      setIsGenerating(false);
     } finally {
+      // 确保在所有情况下都重置生成状态
       setIsGenerating(false);
     }
   };
@@ -260,7 +287,7 @@ export default function CoverGenerator() {
       />
 
       <div className="space-y-6 h-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[700px]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-[900px]">
           <div className="h-full">
             <FormSection
               formData={formData}

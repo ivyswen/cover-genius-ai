@@ -15,6 +15,30 @@ export interface AIProvider {
 
 export const aiProviders: AIProvider[] = [
   {
+    id: "siliconflow",
+    name: "硅基流动",
+    description: "硅基流动提供多种国产大模型，包括通义千问、书生、GLM等",
+    apiKeyUrl: "https://cloud.siliconflow.cn/account/ak",
+    apiEndpoint: "https://api.siliconflow.cn/v1/chat/completions",
+    defaultModel: "Qwen/QwQ-32B",
+    models: [
+      { id: "Qwen/QwQ-32B", name: "通义千问 QwQ-32B" },
+      { id: "Qwen/Qwen2.5-72B-Instruct", name: "通义千问 2.5-72B" },
+      { id: "Qwen/Qwen2.5-32B-Instruct", name: "通义千问 2.5-32B" },
+      { id: "Qwen/Qwen2.5-7B-Instruct", name: "通义千问 2.5-7B" },
+      { id: "deepseek-ai/DeepSeek-V3", name: "DeepSeek-V3" },
+      { id: "THUDM/glm-4-9b-chat", name: "智谱 GLM-4-9B" }
+    ],
+    headers: (apiKey: string) => ({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`
+    }),
+    parseResponse: (response: any) => {
+      const content = response.data.choices[0].message.content;
+      return processAIResponse(content, '硅基流动');
+    }
+  },
+  {
     id: "openrouter",
     name: "OpenRouter",
     description: "OpenRouter提供多种AI模型的统一接口，包括Claude、GPT等",
@@ -37,33 +61,13 @@ export const aiProviders: AIProvider[] = [
       'X-Title': 'Cover Genius AI'
     }),
     parseResponse: (response: any) => {
-      const content = response.data.choices[0].message.content;
-      // 尝试从内容中提取HTML代码块
-      const htmlMatch = content.match(/```html\n([\s\S]*?)\n```/) ||
-                        content.match(/<html[\s\S]*?<\/html>/) ||
-                        content.match(/<body[\s\S]*?<\/body>/);
-
-      if (htmlMatch) {
-        return { html: htmlMatch[1] || htmlMatch[0] };
-      }
-
-      // 如果没有找到HTML代码块，尝试解析为JSON
       try {
-        const jsonStart = content.indexOf('{');
-        const jsonEnd = content.lastIndexOf('}');
-        if (jsonStart >= 0 && jsonEnd > jsonStart) {
-          const jsonStr = content.substring(jsonStart, jsonEnd + 1);
-          const parsed = JSON.parse(jsonStr);
-          if (parsed.html) {
-            return { html: parsed.html };
-          }
-        }
-      } catch (e) {
-        console.error("Failed to parse JSON from OpenRouter response", e);
+        const content = response.data.choices[0].message.content;
+        return processAIResponse(content, 'OpenRouter');
+      } catch (error: any) {
+        console.error("Failed to parse response from OpenRouter", error);
+        return { html: `<div>Error parsing OpenRouter response: ${error?.message || 'Unknown error'}</div>` };
       }
-
-      // 如果都失败了，直接返回内容
-      return { html: content };
     }
   },
   {
@@ -83,9 +87,20 @@ export const aiProviders: AIProvider[] = [
       'X-Title': 'Cover Genius AI'
     }),
     parseResponse: (response: any) => {
-      const result = response.data.choices[0].message.content;
-      const parsed = JSON.parse(result);
-      return { html: parsed.html };
+      try {
+        const content = response.data.choices[0].message.content;
+        return processAIResponse(content, 'DeepSeek');
+      } catch (e) {
+        // 兼容原来的处理方式
+        try {
+          const result = response.data.choices[0].message.content;
+          const parsed = JSON.parse(result);
+          return { html: parsed.html };
+        } catch (error) {
+          console.error("Failed to parse response from DeepSeek", error);
+          return { html: `<div>Error parsing DeepSeek response</div>` };
+        }
+      }
     }
   },
   {
@@ -106,33 +121,13 @@ export const aiProviders: AIProvider[] = [
       'anthropic-version': '2023-06-01'
     }),
     parseResponse: (response: any) => {
-      const content = response.data.content[0].text;
-      // 尝试从内容中提取HTML代码块
-      const htmlMatch = content.match(/```html\n([\s\S]*?)\n```/) ||
-                        content.match(/<html[\s\S]*?<\/html>/) ||
-                        content.match(/<body[\s\S]*?<\/body>/);
-
-      if (htmlMatch) {
-        return { html: htmlMatch[1] || htmlMatch[0] };
-      }
-
-      // 如果没有找到HTML代码块，尝试解析为JSON
       try {
-        const jsonStart = content.indexOf('{');
-        const jsonEnd = content.lastIndexOf('}');
-        if (jsonStart >= 0 && jsonEnd > jsonStart) {
-          const jsonStr = content.substring(jsonStart, jsonEnd + 1);
-          const parsed = JSON.parse(jsonStr);
-          if (parsed.html) {
-            return { html: parsed.html };
-          }
-        }
-      } catch (e) {
-        console.error("Failed to parse JSON from Claude response", e);
+        const content = response.data.content[0].text;
+        return processAIResponse(content, 'Claude');
+      } catch (error: any) {
+        console.error("Failed to parse response from Claude", error);
+        return { html: `<div>Error parsing Claude response: ${error?.message || 'Unknown error'}</div>` };
       }
-
-      // 如果都失败了，直接返回内容
-      return { html: content };
     }
   },
   {
@@ -152,77 +147,8 @@ export const aiProviders: AIProvider[] = [
     }),
     parseResponse: (response: any) => {
       try {
-        // 获取原始响应文本
-        let content = response.data.candidates[0].content.parts[0].text;
-
-        // 如果是空响应，返回错误信息
-        if (!content || content.trim() === '') {
-          return { html: '<div>Error: Empty response from Gemini</div>' };
-        }
-
-        // 处理 Markdown 代码块标记
-        if (content.includes('```')) {
-          // 如果包含多个代码块，只提取第一个
-          const codeBlockMatch = content.match(/```(?:html|json)?([\s\S]*?)```/);
-          if (codeBlockMatch && codeBlockMatch[1]) {
-            content = codeBlockMatch[1].trim();
-          } else {
-            // 如果没有匹配到完整的代码块，尝试移除所有 ``` 标记
-            content = content.replace(/```(?:html|json)?/g, '').replace(/```/g, '').trim();
-          }
-        }
-
-        // 尝试直接解析为 JSON
-        try {
-          const parsed = JSON.parse(content);
-          if (parsed.html) {
-            return { html: parsed.html };
-          }
-          // 如果 JSON 中没有 html 字段，但有其他内容，尝试使用第一个字段
-          const firstKey = Object.keys(parsed)[0];
-          if (firstKey && typeof parsed[firstKey] === 'string') {
-            return { html: parsed[firstKey] };
-          }
-        } catch (e) {
-          // 不是有效的 JSON，继续尝试其他方法
-        }
-
-        // 尝试提取 JSON 对象
-        const jsonMatch = content.match(/{[\s\S]*?}/);
-        if (jsonMatch) {
-          try {
-            const jsonStr = jsonMatch[0];
-            const parsed = JSON.parse(jsonStr);
-            if (parsed.html) {
-              return { html: parsed.html };
-            }
-            // 如果 JSON 中没有 html 字段，但有其他内容，尝试使用第一个字段
-            const firstKey = Object.keys(parsed)[0];
-            if (firstKey && typeof parsed[firstKey] === 'string') {
-              return { html: parsed[firstKey] };
-            }
-          } catch (jsonError) {
-            // 解析提取的 JSON 失败，继续尝试其他方法
-          }
-        }
-
-        // 尝试从内容中提取HTML代码
-        const htmlMatch = content.match(/<html[\s\S]*?<\/html>/) ||
-                          content.match(/<body[\s\S]*?<\/body>/) ||
-                          content.match(/<div[\s\S]*?<\/div>/);
-
-        if (htmlMatch) {
-          return { html: htmlMatch[0] };
-        }
-
-        // 如果内容包含 HTML 标签，则可能是 HTML 片段
-        if (content.includes('<') && content.includes('>') &&
-            (content.includes('</div>') || content.includes('</p>') || content.includes('</span>'))) {
-          return { html: content };
-        }
-
-        // 如果都失败了，将内容包裹在 div 中返回
-        return { html: `<div>${content}</div>` };
+        const content = response.data.candidates[0].content.parts[0].text;
+        return processAIResponse(content, 'Gemini');
       } catch (error: any) {
         return { html: `<div>Error parsing Gemini response: ${error?.message || 'Unknown error'}</div>` };
       }
@@ -245,33 +171,13 @@ export const aiProviders: AIProvider[] = [
       'Authorization': `Bearer ${apiKey}`
     }),
     parseResponse: (response: any) => {
-      const content = response.data.choices[0].message.content;
-      // 尝试从内容中提取HTML代码块
-      const htmlMatch = content.match(/```html\n([\s\S]*?)\n```/) ||
-                        content.match(/<html[\s\S]*?<\/html>/) ||
-                        content.match(/<body[\s\S]*?<\/body>/);
-
-      if (htmlMatch) {
-        return { html: htmlMatch[1] || htmlMatch[0] };
-      }
-
-      // 如果没有找到HTML代码块，尝试解析为JSON
       try {
-        const jsonStart = content.indexOf('{');
-        const jsonEnd = content.lastIndexOf('}');
-        if (jsonStart >= 0 && jsonEnd > jsonStart) {
-          const jsonStr = content.substring(jsonStart, jsonEnd + 1);
-          const parsed = JSON.parse(jsonStr);
-          if (parsed.html) {
-            return { html: parsed.html };
-          }
-        }
-      } catch (e) {
-        console.error("Failed to parse JSON from OpenAI response", e);
+        const content = response.data.choices[0].message.content;
+        return processAIResponse(content, 'OpenAI');
+      } catch (error: any) {
+        console.error("Failed to parse response from OpenAI", error);
+        return { html: `<div>Error parsing OpenAI response: ${error?.message || 'Unknown error'}</div>` };
       }
-
-      // 如果都失败了，直接返回内容
-      return { html: content };
     }
   }
 ];
@@ -283,3 +189,101 @@ export const getProviderById = (id: string): AIProvider | undefined => {
 export const getDefaultProvider = (): AIProvider => {
   return aiProviders[0];
 };
+
+// 通用函数，用于处理AI提供商返回的内容
+export function processAIResponse(content: string, providerName: string = 'AI'): { html: string } {
+  try {
+    // 如果是空响应，返回错误信息
+    if (!content || content.trim() === '') {
+      return { html: `<div>Error: Empty response from ${providerName}</div>` };
+    }
+
+    // 处理 Markdown 代码块标记
+    let processedContent = content;
+    if (processedContent.includes('```')) {
+      // 如果包含多个代码块，只提取第一个
+      const codeBlockMatch = processedContent.match(/```(?:html|json)?([\s\S]*?)```/);
+      if (codeBlockMatch && codeBlockMatch[1]) {
+        const extractedContent = codeBlockMatch[1].trim();
+
+        // 如果提取的内容是JSON字符串，尝试解析它
+        if (extractedContent.trim().startsWith('{') && extractedContent.trim().endsWith('}')) {
+          try {
+            const jsonContent = JSON.parse(extractedContent);
+            if (jsonContent.html) {
+              return { html: jsonContent.html };
+            }
+          } catch (e) {
+            console.error(`Failed to parse JSON from ${providerName} code block`, e);
+            // 解析失败，继续使用提取的内容
+          }
+        }
+
+        // 如果提取的内容是HTML，直接返回
+        if (extractedContent.includes('<') && extractedContent.includes('>')) {
+          return { html: extractedContent };
+        }
+
+        processedContent = extractedContent;
+      } else {
+        // 如果没有匹配到完整的代码块，尝试移除所有 ``` 标记
+        processedContent = processedContent.replace(/```(?:html|json)?/g, '').replace(/```/g, '').trim();
+      }
+    }
+
+    // 尝试从内容中提取HTML代码
+    const htmlMatch = processedContent.match(/<html[\s\S]*?<\/html>/) ||
+                      processedContent.match(/<body[\s\S]*?<\/body>/) ||
+                      processedContent.match(/<div[\s\S]*?<\/div>/);
+
+    if (htmlMatch) {
+      return { html: htmlMatch[0] };
+    }
+
+    // 尝试直接解析为 JSON
+    try {
+      const parsed = JSON.parse(processedContent);
+      if (parsed.html) {
+        return { html: parsed.html };
+      }
+      // 如果 JSON 中没有 html 字段，但有其他内容，尝试使用第一个字段
+      const firstKey = Object.keys(parsed)[0];
+      if (firstKey && typeof parsed[firstKey] === 'string') {
+        return { html: parsed[firstKey] };
+      }
+    } catch (e) {
+      // 不是有效的 JSON，继续尝试其他方法
+    }
+
+    // 尝试提取 JSON 对象
+    const jsonMatch = processedContent.match(/{[\s\S]*?}/);
+    if (jsonMatch) {
+      try {
+        const jsonStr = jsonMatch[0];
+        const parsed = JSON.parse(jsonStr);
+        if (parsed.html) {
+          return { html: parsed.html };
+        }
+        // 如果 JSON 中没有 html 字段，但有其他内容，尝试使用第一个字段
+        const firstKey = Object.keys(parsed)[0];
+        if (firstKey && typeof parsed[firstKey] === 'string') {
+          return { html: parsed[firstKey] };
+        }
+      } catch (jsonError) {
+        // 解析提取的 JSON 失败，继续尝试其他方法
+      }
+    }
+
+    // 如果内容包含 HTML 标签，则可能是 HTML 片段
+    if (processedContent.includes('<') && processedContent.includes('>') &&
+        (processedContent.includes('</div>') || processedContent.includes('</p>') || processedContent.includes('</span>'))) {
+      return { html: processedContent };
+    }
+
+    // 如果都失败了，将内容包裹在 div 中返回
+    return { html: `<div>${processedContent}</div>` };
+  } catch (error: any) {
+    console.error(`Failed to parse response from ${providerName}`, error);
+    return { html: `<div>Error parsing ${providerName} response: ${error?.message || 'Unknown error'}</div>` };
+  }
+}
