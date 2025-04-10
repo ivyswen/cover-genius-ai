@@ -66,10 +66,12 @@ export default function PreviewSection({
             overflow: 'hidden'
           }}
         >
-          {showPreview ? (
-            <SafePreview html={preview.html} platform={platform} />
-          ) : (
-            <SourceCodeView html={preview.html} />
+          {typeof window !== 'undefined' && (
+            showPreview ? (
+              <SafePreview html={preview.html} platform={platform} />
+            ) : (
+              <SourceCodeView html={preview.html} />
+            )
           )}
         </div>
       ) : (

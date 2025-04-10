@@ -8,6 +8,11 @@ interface SourceCodeViewProps {
 }
 
 export default function SourceCodeView({ html }: SourceCodeViewProps) {
+  // Only render on client side
+  if (typeof window === 'undefined') {
+    return <div className="w-full h-full flex items-center justify-center">Loading...</div>;
+  }
+
   return (
     <div className="w-full">
       <div className="relative">
@@ -19,7 +24,8 @@ export default function SourceCodeView({ html }: SourceCodeViewProps) {
             borderRadius: '0.5rem',
             minHeight: '650px',
             maxHeight: '800px',
-            overflow: 'auto'
+            overflow: 'auto',
+            backgroundColor: '#1E1E1E'
           }}
         >
           {html}

@@ -31,9 +31,10 @@ interface FormSectionProps {
   onSubmit: (e: React.FormEvent) => void;
   isGenerating: boolean;
   onProviderChange?: (providerId: string) => void;
+  clientLoaded?: boolean;
 }
 
-export default function FormSection({ formData, setFormData, onSubmit, isGenerating, onProviderChange }: FormSectionProps) {
+export default function FormSection({ formData, setFormData, onSubmit, isGenerating, onProviderChange, clientLoaded = false }: FormSectionProps) {
   // 使用一个强制刷新机制，确保组件正确显示当前选择的值
   const [key, setKey] = useState(0);
 
@@ -164,7 +165,7 @@ export default function FormSection({ formData, setFormData, onSubmit, isGenerat
             />
           </div>
         )}
-        {selectedStyle && (
+        {clientLoaded && selectedStyle && (
           <p className="mt-2 text-sm text-muted-foreground border-t pt-2">
             <span className="font-medium">风格描述：</span>{selectedStyle.description}
           </p>
@@ -206,9 +207,11 @@ export default function FormSection({ formData, setFormData, onSubmit, isGenerat
             ))}
           </SelectContent>
         </Select>
-        <p className="text-xs text-muted-foreground">
-          {aiProviders.find(p => p.id === formData.providerId)?.description}
-        </p>
+        {clientLoaded && (
+          <p className="text-xs text-muted-foreground">
+            {aiProviders.find(p => p.id === formData.providerId)?.description}
+          </p>
+        )}
       </div>
 
       <div className="space-y-2">

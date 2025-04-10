@@ -16,10 +16,16 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
 
   // 检测窗口大小变化并调整缩放比例
   useEffect(() => {
+    if (typeof window === 'undefined') return;
 
     // 确保html2canvas已加载并添加保存按钮
     const ensureHtml2Canvas = (iframeDocument: Document) => {
-      // 如果没有html2canvas脚本，则在HTML中添加
+      if (!iframeDocument) return;
+
+      try {
+        // 设置文档背景为白色
+        iframeDocument.documentElement.style.backgroundColor = 'white';
+        iframeDocument.body.style.backgroundColor = 'white';
 
         // 在HTML中添加html2canvas脚本
         const htmlContent = iframeDocument.documentElement.innerHTML;
@@ -42,6 +48,7 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
             const originalBgColor = document.body.style.backgroundColor;
             // 设置纯白背景以避免色块问题
             document.body.style.backgroundColor = 'white';
+            document.documentElement.style.backgroundColor = 'white';
 
             // 使用更多高级配置
             html2canvas(container, {
@@ -85,6 +92,9 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
         const finalContent = newContent.replace('</head>', `
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
+        html, body {
+            background-color: white !important;
+        }
         .save-btn {
             position: fixed;
             bottom: 20px;
@@ -110,10 +120,19 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
 
         // 重写整个HTML文档
         // 注意：iframeDocument.write已弃用，但在这种情况下是最直接的方法
-        iframeDocument.open();
-        iframeDocument.write(finalContent);
-        iframeDocument.close();
-
+        try {
+          iframeDocument.open();
+          // 使用更安全的方式设置内容
+          const parser = new DOMParser();
+          const newDoc = parser.parseFromString(finalContent, 'text/html');
+          iframeDocument.documentElement.innerHTML = newDoc.documentElement.innerHTML;
+          iframeDocument.close();
+        } catch (error) {
+          console.error('Error writing to iframe document:', error);
+        }
+      } catch (error) {
+        console.error('Error in ensureHtml2Canvas:', error);
+      }
     };
 
     const updateScale = () => {
@@ -162,6 +181,7 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
             min-height: 100vh;
             padding: 0;
             overflow: hidden;
+            background-color: white;
           }
         `;
 
@@ -180,15 +200,25 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
 
     // 等待iframe加载完成后计算缩放并确保html2canvas已加载
     const handleIframeLoad = () => {
-      if (iframeRef.current && iframeRef.current.contentWindow) {
+      if (!iframeRef.current || !iframeRef.current.contentWindow) return;
+
+      try {
         const iframeDocument = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document;
-        ensureHtml2Canvas(iframeDocument);
+        if (iframeDocument) {
+          ensureHtml2Canvas(iframeDocument);
+          setTimeout(updateScale, 200);
+        }
+      } catch (error) {
+        console.error('Error handling iframe load:', error);
       }
-      setTimeout(updateScale, 200);
     };
 
     if (iframeRef.current) {
-      iframeRef.current.addEventListener('load', handleIframeLoad);
+      try {
+        iframeRef.current.addEventListener('load', handleIframeLoad);
+      } catch (error) {
+        console.error('Error adding event listener:', error);
+      }
     }
 
     // 监听窗口大小变化
@@ -200,15 +230,15 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
         iframeRef.current.removeEventListener('load', handleIframeLoad);
       }
     };
-  }, [html]);
+  }, [html, platform]);
 
   return (
     <div className="flex flex-col items-center w-full">
-      <div className="flex items-center justify-between w-full mb-4">
-        <span className="text-sm text-gray-500">缩放: {Math.round(scale * 100)}%</span>
-        <div className="flex space-x-2">
+      <div className="flex items-center w-full mb-4 z-10 relative">
+        <span className="text-sm text-gray-500 mr-4">缩放: {Math.round(scale * 100)}%</span>
+        <div className="flex space-x-2"> {/* Moved buttons to the left side */}
           <button
-            className="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
+            className="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300 shadow-sm"
             onClick={() => {
               if (!iframeRef.current || !iframeRef.current.contentDocument) return;
               const newScale = Math.max(0.3, scale - 0.1);
@@ -229,6 +259,7 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
                     min-height: 100vh;
                     padding: 0;
                     overflow: hidden;
+                    background-color: white;
                   }
                 `;
               }
@@ -237,7 +268,7 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
             -
           </button>
           <button
-            className="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
+            className="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300 shadow-sm"
             onClick={() => {
               if (!iframeRef.current || !iframeRef.current.contentDocument) return;
               const newScale = Math.min(1, scale + 0.1);
@@ -258,6 +289,7 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
                     min-height: 100vh;
                     padding: 0;
                     overflow: hidden;
+                    background-color: white;
                   }
                 `;
               }
@@ -266,7 +298,7 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
             +
           </button>
           <button
-            className="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300"
+            className="px-2 py-1 text-xs bg-gray-200 rounded hover:bg-gray-300 shadow-sm"
             onClick={() => {
               if (!iframeRef.current || !iframeRef.current.contentDocument) return;
               setScale(1);
@@ -286,6 +318,7 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
                     min-height: 100vh;
                     padding: 0;
                     overflow: hidden;
+                    background-color: white;
                   }
                 `;
               }
@@ -301,16 +334,22 @@ export default function SafePreview({ html, onClose, platform = "xiaohongshu" }:
         className="w-full bg-white border rounded-md shadow-sm overflow-hidden"
         style={{
           height: '600px',
-          position: 'relative'
+          position: 'relative',
+          backgroundColor: 'white',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
         }}
       >
-        <iframe
-          ref={iframeRef}
-          srcDoc={html}
-          title="Preview"
-          className="w-full h-full border-none"
-          sandbox="allow-scripts allow-same-origin allow-downloads allow-popups"
-        />
+        {typeof window !== 'undefined' && (
+          <iframe
+            ref={iframeRef}
+            srcDoc={html}
+            title="Preview"
+            className="w-full h-full border-none"
+            sandbox="allow-scripts allow-same-origin allow-downloads allow-popups"
+          />
+        )}
       </div>
 
       {onClose && (

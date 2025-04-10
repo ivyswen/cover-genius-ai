@@ -28,25 +28,15 @@ interface FormData {
 }
 
 export default function CoverGenerator() {
+  // 使用客户端状态跟踪是否已加载客户端数据
+  const [clientLoaded, setClientLoaded] = useState(false);
+
   // 使用函数初始化状态，确保只运行一次
   const [formData, setFormData] = useState<FormData>(() => {
-    // 尝试从 localStorage 读取上次使用的提供商
-    const savedProviderId = localStorage.getItem("last_provider_id");
-    let initialProviderId = "deepseek";
-    let initialModelId = "deepseek-chat";
-
-    if (savedProviderId) {
-      const provider = aiProviders.find(p => p.id === savedProviderId);
-      if (provider) {
-        console.log("Initial state: Using saved provider:", savedProviderId);
-        initialProviderId = savedProviderId;
-        initialModelId = provider.defaultModel;
-      }
-    }
-
-    // 尝试读取对应的 API 密钥
-    const apiKeyStorageKey = `${initialProviderId}_api_key`;
-    const savedApiKey = localStorage.getItem(apiKeyStorageKey) || "";
+    // 默认值 - 始终使用相同的默认值进行服务器和客户端渲染
+    const initialProviderId = "deepseek";
+    const initialModelId = "deepseek-chat";
+    const savedApiKey = "";
 
     return {
       title: "",
@@ -61,6 +51,35 @@ export default function CoverGenerator() {
       apiKey: savedApiKey,
     };
   });
+
+  // 在客户端加载完成后加载本地存储的数据
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // 尝试从 localStorage 读取上次使用的提供商
+      const savedProviderId = localStorage.getItem("last_provider_id");
+
+      if (savedProviderId) {
+        const provider = aiProviders.find(p => p.id === savedProviderId);
+        if (provider) {
+          console.log("Client-side: Using saved provider:", savedProviderId);
+
+          // 尝试读取对应的 API 密钥
+          const apiKeyStorageKey = `${savedProviderId}_api_key`;
+          const savedApiKey = localStorage.getItem(apiKeyStorageKey) || "";
+
+          setFormData(prevData => ({
+            ...prevData,
+            providerId: savedProviderId,
+            modelId: provider.defaultModel,
+            apiKey: savedApiKey
+          }));
+        }
+      }
+
+      setClientLoaded(true);
+    }
+
+  }, []);
 
 
 
@@ -86,9 +105,16 @@ export default function CoverGenerator() {
       return;
     }
 
-    // 读取新提供商的 API 密钥
-    const storageKey = `${newProviderId}_api_key`;
-    const savedApiKey = localStorage.getItem(storageKey) || "";
+    // 检查是否在浏览器环境中
+    let savedApiKey = "";
+    if (typeof window !== 'undefined') {
+      // 读取新提供商的 API 密钥
+      const storageKey = `${newProviderId}_api_key`;
+      savedApiKey = localStorage.getItem(storageKey) || "";
+
+      // 保存到 localStorage
+      localStorage.setItem("last_provider_id", newProviderId);
+    }
 
     // 更新状态
     setFormData({
@@ -97,14 +123,12 @@ export default function CoverGenerator() {
       modelId: provider.defaultModel,
       apiKey: savedApiKey
     });
-
-    // 保存到 localStorage
-    localStorage.setItem("last_provider_id", newProviderId);
   };
 
   // 保存 API 密钥到 localStorage
   useEffect(() => {
-    if (formData.apiKey) {
+    // 检查是否在浏览器环境中
+    if (typeof window !== 'undefined' && formData.apiKey) {
       const storageKey = `${formData.providerId}_api_key`;
       localStorage.setItem(storageKey, formData.apiKey);
     }
@@ -174,15 +198,7 @@ export default function CoverGenerator() {
           html: parsedResponse.html
         });
 
-        // Save to history
-        const history = JSON.parse(localStorage.getItem("coverHistory") || "[]");
-        history.unshift({
-          ...formData,
-          apiKey: undefined,
-          timestamp: new Date().toISOString(),
-          preview: { html: parsedResponse.html },
-        });
-        localStorage.setItem("coverHistory", JSON.stringify(history.slice(0, 10)));
+        // History functionality removed
 
         toast.dismiss(loadingToast);
         toast.success("封面生成成功！");
@@ -263,6 +279,7 @@ export default function CoverGenerator() {
               onSubmit={handleSubmit}
               isGenerating={isGenerating}
               onProviderChange={handleProviderChange}
+              clientLoaded={clientLoaded}
             />
           </div>
 
