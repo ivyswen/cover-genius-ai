@@ -56,14 +56,14 @@ export const aiProviders: AIProvider[] = [
     parseResponse: (response: any) => {
       const content = response.data.content[0].text;
       // 尝试从内容中提取HTML代码块
-      const htmlMatch = content.match(/```html\n([\s\S]*?)\n```/) || 
+      const htmlMatch = content.match(/```html\n([\s\S]*?)\n```/) ||
                         content.match(/<html[\s\S]*?<\/html>/) ||
                         content.match(/<body[\s\S]*?<\/body>/);
-      
+
       if (htmlMatch) {
         return { html: htmlMatch[1] || htmlMatch[0] };
       }
-      
+
       // 如果没有找到HTML代码块，尝试解析为JSON
       try {
         const jsonStart = content.indexOf('{');
@@ -78,7 +78,7 @@ export const aiProviders: AIProvider[] = [
       } catch (e) {
         console.error("Failed to parse JSON from Claude response", e);
       }
-      
+
       // 如果都失败了，直接返回内容
       return { html: content };
     }
@@ -91,7 +91,8 @@ export const aiProviders: AIProvider[] = [
     apiEndpoint: "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent",
     defaultModel: "gemini-pro",
     models: [
-      { id: "gemini-pro", name: "Gemini Pro" }
+      { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" },
+      { id: "gemini-2.5-pro-exp-03-25", name: "Gemini 2.5 Pro Exp 03-25" }
     ],
     headers: (apiKey: string) => ({
       'Content-Type': 'application/json'
@@ -99,14 +100,14 @@ export const aiProviders: AIProvider[] = [
     parseResponse: (response: any) => {
       const content = response.data.candidates[0].content.parts[0].text;
       // 尝试从内容中提取HTML代码块
-      const htmlMatch = content.match(/```html\n([\s\S]*?)\n```/) || 
+      const htmlMatch = content.match(/```html\n([\s\S]*?)\n```/) ||
                         content.match(/<html[\s\S]*?<\/html>/) ||
                         content.match(/<body[\s\S]*?<\/body>/);
-      
+
       if (htmlMatch) {
         return { html: htmlMatch[1] || htmlMatch[0] };
       }
-      
+
       // 如果没有找到HTML代码块，尝试解析为JSON
       try {
         const jsonStart = content.indexOf('{');
@@ -121,7 +122,7 @@ export const aiProviders: AIProvider[] = [
       } catch (e) {
         console.error("Failed to parse JSON from Gemini response", e);
       }
-      
+
       // 如果都失败了，直接返回内容
       return { html: content };
     }
@@ -145,14 +146,14 @@ export const aiProviders: AIProvider[] = [
     parseResponse: (response: any) => {
       const content = response.data.choices[0].message.content;
       // 尝试从内容中提取HTML代码块
-      const htmlMatch = content.match(/```html\n([\s\S]*?)\n```/) || 
+      const htmlMatch = content.match(/```html\n([\s\S]*?)\n```/) ||
                         content.match(/<html[\s\S]*?<\/html>/) ||
                         content.match(/<body[\s\S]*?<\/body>/);
-      
+
       if (htmlMatch) {
         return { html: htmlMatch[1] || htmlMatch[0] };
       }
-      
+
       // 如果没有找到HTML代码块，尝试解析为JSON
       try {
         const jsonStart = content.indexOf('{');
@@ -167,7 +168,7 @@ export const aiProviders: AIProvider[] = [
       } catch (e) {
         console.error("Failed to parse JSON from OpenAI response", e);
       }
-      
+
       // 如果都失败了，直接返回内容
       return { html: content };
     }

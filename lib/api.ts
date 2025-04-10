@@ -1,6 +1,5 @@
 import axios from 'axios';
-import { toast } from 'sonner';
-import { AIProvider, getProviderById } from './aiProviders';
+import { getProviderById } from './aiProviders';
 
 interface GenerationResponse {
   html: string;

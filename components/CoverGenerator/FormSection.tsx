@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,9 +30,18 @@ interface FormSectionProps {
   setFormData: (data: FormData) => void;
   onSubmit: (e: React.FormEvent) => void;
   isGenerating: boolean;
+  onProviderChange?: (providerId: string) => void;
 }
 
-export default function FormSection({ formData, setFormData, onSubmit, isGenerating }: FormSectionProps) {
+export default function FormSection({ formData, setFormData, onSubmit, isGenerating, onProviderChange }: FormSectionProps) {
+  // 使用一个强制刷新机制，确保组件正确显示当前选择的值
+  const [key, setKey] = useState(0);
+
+  // 当 formData.providerId 变化时，增加 key 值，强制组件重新渲染
+  useEffect(() => {
+    setKey(prev => prev + 1);
+  }, [formData.providerId]);
+
   const selectedStyle = styles.find(s => s.id === formData.style);
 
   return (
@@ -164,15 +174,22 @@ export default function FormSection({ formData, setFormData, onSubmit, isGenerat
       <div className="space-y-2">
         <Label>AI 提供商 *</Label>
         <Select
+          key={`provider-select-${key}-${formData.providerId}`}
           value={formData.providerId}
           onValueChange={(value) => {
-            const provider = aiProviders.find(p => p.id === value);
-            if (provider) {
-              setFormData({
-                ...formData,
-                providerId: value,
-                modelId: provider.defaultModel
-              });
+            // 使用父组件提供的 onProviderChange 函数
+            if (onProviderChange) {
+              onProviderChange(value);
+            } else {
+              // 如果没有提供 onProviderChange，则使用原来的方式
+              const provider = aiProviders.find(p => p.id === value);
+              if (provider) {
+                setFormData({
+                  ...formData,
+                  providerId: value,
+                  modelId: provider.defaultModel
+                });
+              }
             }
           }}
           required
@@ -197,6 +214,7 @@ export default function FormSection({ formData, setFormData, onSubmit, isGenerat
       <div className="space-y-2">
         <Label>AI 模型 *</Label>
         <Select
+          key={`model-select-${key}-${formData.providerId}-${formData.modelId}`}
           value={formData.modelId}
           onValueChange={(value) => setFormData({ ...formData, modelId: value })}
           required

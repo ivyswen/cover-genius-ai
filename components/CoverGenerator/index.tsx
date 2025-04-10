@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { generateCover } from "@/lib/api";
 import { generatePrompt } from "@/lib/prompt";
+import { aiProviders } from "@/lib/aiProviders";
 import FormSection from "./FormSection";
 import PreviewSection from "./PreviewSection";
 import PromptDialog from "./PromptDialog";
@@ -27,18 +28,41 @@ interface FormData {
 }
 
 export default function CoverGenerator() {
-  const [formData, setFormData] = useState<FormData>({
-    title: "",
-    content: "",
-    account: "",
-    slogan: "",
-    backgroundUrl: "",
-    style: "",
-    platform: "xiaohongshu",
-    providerId: "deepseek",
-    modelId: "deepseek-chat",
-    apiKey: "",
+  // 使用函数初始化状态，确保只运行一次
+  const [formData, setFormData] = useState<FormData>(() => {
+    // 尝试从 localStorage 读取上次使用的提供商
+    const savedProviderId = localStorage.getItem("last_provider_id");
+    let initialProviderId = "deepseek";
+    let initialModelId = "deepseek-chat";
+
+    if (savedProviderId) {
+      const provider = aiProviders.find(p => p.id === savedProviderId);
+      if (provider) {
+        console.log("Initial state: Using saved provider:", savedProviderId);
+        initialProviderId = savedProviderId;
+        initialModelId = provider.defaultModel;
+      }
+    }
+
+    // 尝试读取对应的 API 密钥
+    const apiKeyStorageKey = `${initialProviderId}_api_key`;
+    const savedApiKey = localStorage.getItem(apiKeyStorageKey) || "";
+
+    return {
+      title: "",
+      content: "",
+      account: "",
+      slogan: "",
+      backgroundUrl: "",
+      style: "",
+      platform: "xiaohongshu",
+      providerId: initialProviderId,
+      modelId: initialModelId,
+      apiKey: savedApiKey,
+    };
   });
+
+
 
 
   const [preview, setPreview] = useState<PreviewData | null>(null);
@@ -49,15 +73,34 @@ export default function CoverGenerator() {
   const [isCopying, setIsCopying] = useState(false);
   const [showPasteDialog, setShowPasteDialog] = useState(false);
 
-  // 在组件挂载时从 localStorage 读取 API 密钥
-  useEffect(() => {
-    // 根据当前选择的提供商读取对应的API密钥
-    const storageKey = `${formData.providerId}_api_key`;
-    const savedApiKey = localStorage.getItem(storageKey);
-    if (savedApiKey) {
-      setFormData(prev => ({ ...prev, apiKey: savedApiKey }));
+  // 定义一个函数来处理提供商变化
+  const handleProviderChange = (newProviderId: string) => {
+    // 如果提供商没有变化，则不做任何处理
+    if (formData.providerId === newProviderId) {
+      return;
     }
-  }, [formData.providerId]);
+
+    // 找到新的提供商
+    const provider = aiProviders.find(p => p.id === newProviderId);
+    if (!provider) {
+      return;
+    }
+
+    // 读取新提供商的 API 密钥
+    const storageKey = `${newProviderId}_api_key`;
+    const savedApiKey = localStorage.getItem(storageKey) || "";
+
+    // 更新状态
+    setFormData({
+      ...formData,
+      providerId: newProviderId,
+      modelId: provider.defaultModel,
+      apiKey: savedApiKey
+    });
+
+    // 保存到 localStorage
+    localStorage.setItem("last_provider_id", newProviderId);
+  };
 
   // 保存 API 密钥到 localStorage
   useEffect(() => {
@@ -108,7 +151,12 @@ export default function CoverGenerator() {
       const loadingToast = toast.loading("正在生成封面...");
       setIsGenerating(true);
 
-      const response = await generateCover(generatedPrompt, formData.apiKey, formData.providerId, formData.modelId);
+      // 在调用 API 前保存当前的提供商和模型
+      const currentProviderId = formData.providerId;
+      const currentModelId = formData.modelId;
+      const currentApiKey = formData.apiKey;
+
+      const response = await generateCover(generatedPrompt, currentApiKey, currentProviderId, currentModelId);
       // console.log("API Response:", response);
 
       try {
@@ -214,6 +262,7 @@ export default function CoverGenerator() {
               setFormData={setFormData}
               onSubmit={handleSubmit}
               isGenerating={isGenerating}
+              onProviderChange={handleProviderChange}
             />
           </div>
 
